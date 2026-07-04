@@ -7,6 +7,11 @@ const preferredPort = Number(process.env.PORT || 8123);
 const host = process.env.HOST || (process.env.NODE_ENV === "production" ? "0.0.0.0" : "127.0.0.1");
 const tiktokUser = getArgValue("--tiktok") || process.env.TIKTOK_USER || "";
 const clients = new Set();
+let liveStatus = {
+  type: "status",
+  state: tiktokUser ? "connecting" : "simulator",
+  message: tiktokUser ? `Buscando live de @${tiktokUser.replace(/^@/, "")}...` : "Modo simulador"
+};
 const types = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
@@ -91,13 +96,22 @@ function connectEventStream(req, res) {
   });
   res.write(": connected\n\n");
   clients.add(res);
+  sendEvent(res, liveStatus);
   req.on("close", () => clients.delete(res));
 }
 
 function broadcast(event) {
-  const payload = `data: ${JSON.stringify(event)}\n\n`;
-  clients.forEach((client) => client.write(payload));
+  clients.forEach((client) => sendEvent(client, event));
   console.log(`[${event.type}] ${event.name || "sin nombre"}`);
+}
+
+function sendEvent(client, event) {
+  client.write(`data: ${JSON.stringify(event)}\n\n`);
+}
+
+function setLiveStatus(state, message) {
+  liveStatus = { type: "status", state, message };
+  broadcast(liveStatus);
 }
 
 async function connectTikTok(uniqueId) {
@@ -108,11 +122,15 @@ async function connectTikTok(uniqueId) {
   } catch (error) {
     console.error("Falta instalar tiktok-live-connector.");
     console.error("Ejecuta: npm install");
+    setLiveStatus("error", "Falta instalar tiktok-live-connector");
     return;
   }
 
   const cleanUser = uniqueId.replace(/^@/, "");
   const connection = new WebcastPushConnection(cleanUser);
+  let reconnectTimer;
+
+  setLiveStatus("connecting", `Buscando live de @${cleanUser}...`);
 
   connection.on("chat", (data) => {
     broadcast({
@@ -147,10 +165,13 @@ async function connectTikTok(uniqueId) {
 
   connection.on("connected", () => {
     console.log(`Conectado al live de @${cleanUser}`);
+    setLiveStatus("connected", `Conectado al live de @${cleanUser}`);
   });
 
   connection.on("disconnected", () => {
     console.log(`Desconectado del live de @${cleanUser}`);
+    setLiveStatus("waiting", `Live desconectado. Reintentando @${cleanUser}...`);
+    scheduleTikTokReconnect(cleanUser);
   });
 
   try {
@@ -158,6 +179,13 @@ async function connectTikTok(uniqueId) {
   } catch (error) {
     console.error(`No pude conectar con @${cleanUser}. Verifica que este en vivo.`);
     console.error(error.message);
+    setLiveStatus("waiting", `Esperando que @${cleanUser} este en vivo...`);
+    scheduleTikTokReconnect(cleanUser);
+  }
+
+  function scheduleTikTokReconnect(user) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = setTimeout(() => connectTikTok(user), 15000);
   }
 }
 
