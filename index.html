@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BailaChat Live</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="stage-area" aria-label="Escenario de BailaChat">
+        <div class="lights"></div>
+        <div class="screen-hud">
+          <div>
+            <p class="eyebrow">BailaChat Live</p>
+            <h1>Comenta para entrar. Dona para avanzar.</h1>
+          </div>
+          <div class="music-pill" id="musicPill">Musica: Cumbia</div>
+        </div>
+
+        <div class="vip-zone">
+          <span>Escenario VIP</span>
+          <strong id="vipName">Esperando primer baile...</strong>
+        </div>
+
+        <div class="dance-floor" id="danceFloor" aria-live="polite">
+          <div class="lane lane-4"></div>
+          <div class="lane lane-3"></div>
+          <div class="lane lane-2"></div>
+          <div class="lane lane-1"></div>
+        </div>
+
+        <div class="ticker" id="ticker">Tip: probá un nombre y tocá Comentar</div>
+      </section>
+
+      <aside class="control-panel" aria-label="Panel de prueba">
+        <div class="panel-header">
+          <p class="eyebrow">Panel streamer</p>
+          <h2>Simulador</h2>
+        </div>
+
+        <label>
+          Nombre del viewer
+          <input id="viewerName" autocomplete="off" maxlength="18" placeholder="Ej: Nico">
+        </label>
+
+        <div class="actions">
+          <button id="commentBtn" type="button">Comentar</button>
+          <button id="smallGiftBtn" type="button">Regalo chico</button>
+          <button id="mediumGiftBtn" type="button">Regalo medio</button>
+          <button id="bigGiftBtn" type="button">Regalo grande</button>
+        </div>
+
+        <label>
+          Música
+          <select id="musicSelect">
+            <option value="cumbia">Cumbia</option>
+            <option value="electro">Electrónica</option>
+            <option value="reggaeton">Reggaetón</option>
+            <option value="rock">Rock</option>
+          </select>
+        </label>
+
+        <div class="quick-row">
+          <button id="randomBtn" type="button">Evento random</button>
+          <button id="resetBtn" type="button">Reset</button>
+        </div>
+
+        <div class="scoreboard">
+          <h3>Top baile</h3>
+          <ol id="scoreList"></ol>
+        </div>
+      </aside>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>

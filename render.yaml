@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: bailachat-live
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TIKTOK_USER
+        sync: false
