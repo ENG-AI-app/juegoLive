@@ -37,6 +37,18 @@ No hace falta poner `@`. El navegador recibe los eventos automaticamente:
 - Regalo: avanza segun el valor estimado del regalo.
 - Like: activa una animacion chica.
 
+## Musica y sonidos
+
+La musica principal la pone el streamer por fuera, desde TikTok Live Studio, OBS, Spotify, YouTube u otra fuente.
+
+El juego solo reproduce efectos cortos de evento:
+
+- Comentario: sonido corto de entrada.
+- Regalo: sonido de avance.
+- Regalo grande/VIP: sonido mas fuerte.
+
+El selector `Sonidos de evento` cambia el estilo de esos efectos, no reproduce canciones completas.
+
 Tambien se puede usar variable de entorno:
 
 ```powershell

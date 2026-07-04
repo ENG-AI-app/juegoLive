@@ -2,7 +2,7 @@ const floor = document.querySelector("#danceFloor");
 const viewerName = document.querySelector("#viewerName");
 const ticker = document.querySelector("#ticker");
 const vipName = document.querySelector("#vipName");
-const musicSelect = document.querySelector("#musicSelect");
+const soundSelect = document.querySelector("#soundSelect");
 const musicPill = document.querySelector("#musicPill");
 const scoreList = document.querySelector("#scoreList");
 const joinPop = document.querySelector("#joinPop");
@@ -13,17 +13,33 @@ if (new URLSearchParams(window.location.search).get("overlay") === "1") {
 
 const colors = ["#ff4f88", "#2ee8c6", "#ffd166", "#5ea3ff", "#9dff62", "#f28cff"];
 const sampleNames = ["Luna", "Mateo", "Sofi", "Tomi", "Cami", "Dani", "Valen", "Mora"];
-const musicLabels = {
-  cumbia: "Cumbia",
-  electro: "Electronica",
-  reggaeton: "Reggaeton",
+const soundLabels = {
+  fiesta: "Fiesta",
+  arcade: "Arcade",
+  club: "Club",
   rock: "Rock"
 };
-const musicPatterns = {
-  cumbia: [392, 494, 523, 494],
-  electro: [130, 196, 262, 330],
-  reggaeton: [220, 220, 294, 247],
-  rock: [147, 196, 220, 294]
+const soundPatterns = {
+  fiesta: {
+    comment: [523, 659],
+    gift: [392, 523, 659, 784],
+    vip: [523, 659, 784, 1046]
+  },
+  arcade: {
+    comment: [660, 880],
+    gift: [440, 660, 880, 1320],
+    vip: [880, 1320, 1760, 1320]
+  },
+  club: {
+    comment: [196, 294],
+    gift: [130, 196, 262, 330],
+    vip: [98, 196, 392, 523]
+  },
+  rock: {
+    comment: [147, 220],
+    gift: [147, 196, 220, 294],
+    vip: [147, 220, 294, 440]
+  }
 };
 
 let dancers = new Map();
@@ -101,7 +117,7 @@ function comment(rawName = viewerName.value) {
   pulseDance(dancer);
   ticker.textContent = `${dancer.name} entro al baile con un comentario`;
   showJoinPop(`${dancer.name} entro al juego`);
-  playBeat(1);
+  playEventSound("comment", 1);
   renderScores();
 }
 
@@ -120,7 +136,7 @@ function gift(amount, label, rawName = viewerName.value) {
     dancer.score += 15;
   }
 
-  playBeat(amount + 1);
+  playEventSound(dancer.progress >= 4 ? "vip" : "gift", amount + 1);
   renderScores();
 }
 
@@ -142,10 +158,10 @@ function renderScores() {
   });
 }
 
-function setMusic(value) {
-  musicPill.textContent = `Musica: ${musicLabels[value]}`;
-  ticker.textContent = `Modo musical cambiado a ${musicLabels[value]}`;
-  playBeat(3);
+function setSoundStyle(value) {
+  musicPill.textContent = `Musica externa + FX: ${soundLabels[value]}`;
+  ticker.textContent = `Efectos de evento: ${soundLabels[value]}. La musica va por fuera.`;
+  playEventSound("gift", 2);
 }
 
 function showJoinPop(text) {
@@ -160,24 +176,26 @@ function ensureAudio() {
   return audioContext;
 }
 
-function playBeat(strength) {
+function playEventSound(kind, strength) {
   const context = ensureAudio();
-  const pattern = musicPatterns[musicSelect.value];
+  const style = soundPatterns[soundSelect.value] || soundPatterns.fiesta;
+  const pattern = style[kind] || style.gift;
   const now = context.currentTime;
   const volume = Math.min(0.09, 0.035 + strength * 0.012);
 
   pattern.forEach((freq, index) => {
     const osc = context.createOscillator();
     const gain = context.createGain();
-    osc.type = index % 2 ? "triangle" : "sine";
+    osc.type = kind === "vip" ? "sawtooth" : index % 2 ? "triangle" : "sine";
     osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0, now + index * 0.12);
-    gain.gain.linearRampToValueAtTime(volume, now + index * 0.12 + 0.015);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + index * 0.12 + 0.11);
+    const start = now + index * 0.1;
+    gain.gain.setValueAtTime(0, start);
+    gain.gain.linearRampToValueAtTime(volume, start + 0.014);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.105);
     osc.connect(gain);
     gain.connect(context.destination);
-    osc.start(now + index * 0.12);
-    osc.stop(now + index * 0.12 + 0.12);
+    osc.start(start);
+    osc.stop(start + 0.12);
   });
 }
 
@@ -254,7 +272,7 @@ document.querySelector("#mediumGiftBtn").addEventListener("click", () => gift(2,
 document.querySelector("#bigGiftBtn").addEventListener("click", () => gift(4, "regalo grande"));
 document.querySelector("#randomBtn").addEventListener("click", randomEvent);
 document.querySelector("#resetBtn").addEventListener("click", reset);
-musicSelect.addEventListener("change", (event) => setMusic(event.target.value));
+soundSelect.addEventListener("change", (event) => setSoundStyle(event.target.value));
 viewerName.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
     comment();
