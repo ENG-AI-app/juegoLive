@@ -5,6 +5,7 @@ const vipName = document.querySelector("#vipName");
 const musicSelect = document.querySelector("#musicSelect");
 const musicPill = document.querySelector("#musicPill");
 const scoreList = document.querySelector("#scoreList");
+const joinPop = document.querySelector("#joinPop");
 
 if (new URLSearchParams(window.location.search).get("overlay") === "1") {
   document.body.classList.add("overlay-mode");
@@ -50,6 +51,7 @@ function createDancer(name) {
     name,
     progress: 0,
     score: 0,
+    gifts: 0,
     order: dancers.size,
     color: colors[dancers.size % colors.length],
     element: document.createElement("div")
@@ -86,6 +88,7 @@ function updateDancer(dancer) {
   dancer.element.style.setProperty("--y", pos.y);
   dancer.element.style.setProperty("--scale", pos.scale);
   dancer.element.classList.toggle("vip", dancer.progress >= 4);
+  dancer.element.classList.toggle("supporter", dancer.gifts > 0);
 }
 
 function pulseDance(dancer) {
@@ -97,6 +100,7 @@ function comment(rawName = viewerName.value) {
   const dancer = getDancer(rawName);
   pulseDance(dancer);
   ticker.textContent = `${dancer.name} entro al baile con un comentario`;
+  showJoinPop(`${dancer.name} entro al juego`);
   playBeat(1);
   renderScores();
 }
@@ -104,10 +108,12 @@ function comment(rawName = viewerName.value) {
 function gift(amount, label, rawName = viewerName.value) {
   const dancer = getDancer(rawName);
   dancer.progress = Math.min(4, dancer.progress + amount);
+  dancer.gifts += 1;
   dancer.score += amount * 10;
   updateDancer(dancer);
   pulseDance(dancer);
   ticker.textContent = `${dancer.name} mando ${label} y avanzo ${amount} puesto${amount > 1 ? "s" : ""}`;
+  showJoinPop(`${dancer.name} mando ${label} y esta bailando`);
 
   if (dancer.progress >= 4) {
     vipName.textContent = `${dancer.name} esta bailando en el VIP`;
@@ -140,6 +146,13 @@ function setMusic(value) {
   musicPill.textContent = `Musica: ${musicLabels[value]}`;
   ticker.textContent = `Modo musical cambiado a ${musicLabels[value]}`;
   playBeat(3);
+}
+
+function showJoinPop(text) {
+  joinPop.textContent = text;
+  joinPop.classList.remove("show");
+  void joinPop.offsetWidth;
+  joinPop.classList.add("show");
 }
 
 function ensureAudio() {
@@ -186,6 +199,8 @@ function reset() {
   dancers.forEach((dancer) => dancer.element.remove());
   dancers = new Map();
   vipName.textContent = "Esperando primer baile...";
+  joinPop.textContent = "Esperando comentarios...";
+  joinPop.classList.remove("show");
   ticker.textContent = "Escenario reiniciado";
   renderScores();
 }

@@ -99,11 +99,34 @@ h1 {
 
 .music-pill,
 .vip-zone,
+.join-pop,
 .ticker,
 .control-panel {
   border: 1px solid var(--line);
   backdrop-filter: blur(16px);
   background: rgba(8, 12, 18, 0.58);
+}
+
+.join-pop {
+  position: relative;
+  z-index: 4;
+  width: min(620px, 82%);
+  margin: 18px auto 0;
+  padding: 12px 18px;
+  border-radius: 8px;
+  color: white;
+  font-size: clamp(20px, 2.5vw, 36px);
+  font-weight: 1000;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(-10px) scale(0.98);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.join-pop.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  animation: popGlow 1100ms ease-in-out;
 }
 
 .music-pill {
@@ -182,7 +205,8 @@ h1 {
   filter: drop-shadow(0 14px 14px rgba(0, 0, 0, 0.38));
 }
 
-.dancer.vip {
+.dancer.vip,
+.dancer.supporter {
   animation: featured 780ms ease-in-out infinite alternate;
 }
 
@@ -265,12 +289,13 @@ h1 {
   position: absolute;
   left: 50%;
   bottom: 120px;
-  max-width: 132px;
-  padding: 5px 9px;
+  max-width: 170px;
+  padding: 7px 12px;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.72);
+  border: 2px solid rgba(255, 255, 255, 0.28);
+  background: rgba(0, 0, 0, 0.84);
   color: white;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 900;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -279,16 +304,19 @@ h1 {
 }
 
 .dancer.dance .arm.left,
+.dancer.supporter .arm.left,
 .dancer.vip .arm.left {
   animation: leftArm 430ms ease-in-out infinite alternate;
 }
 
 .dancer.dance .arm.right,
+.dancer.supporter .arm.right,
 .dancer.vip .arm.right {
   animation: rightArm 430ms ease-in-out infinite alternate;
 }
 
 .dancer.dance .body,
+.dancer.supporter .body,
 .dancer.vip .body {
   animation: bounce 430ms ease-in-out infinite alternate;
 }
@@ -433,6 +461,12 @@ li {
 @keyframes featured {
   from { filter: drop-shadow(0 14px 14px rgba(0, 0, 0, 0.38)) drop-shadow(0 0 4px rgba(255, 209, 102, 0.4)); }
   to { filter: drop-shadow(0 14px 14px rgba(0, 0, 0, 0.38)) drop-shadow(0 0 24px rgba(255, 209, 102, 0.8)); }
+}
+
+@keyframes popGlow {
+  0% { box-shadow: 0 0 0 rgba(46, 232, 198, 0); }
+  35% { box-shadow: 0 0 34px rgba(46, 232, 198, 0.38); }
+  100% { box-shadow: 0 0 0 rgba(46, 232, 198, 0); }
 }
 
 @media (max-width: 980px) {
