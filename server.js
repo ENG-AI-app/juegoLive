@@ -49,7 +49,8 @@ function startServer(port) {
 }
 
 function handleRequest(req, res) {
-  const cleanUrl = req.url.split("?")[0];
+  const requestUrl = new URL(req.url, "http://localhost");
+  const cleanUrl = requestUrl.pathname;
 
   if (cleanUrl === "/events") {
     connectEventStream(req, res);
@@ -80,6 +81,38 @@ function handleRequest(req, res) {
     return;
   }
 
+  if (cleanUrl === "/api/comment") {
+    broadcast({
+      type: "comment",
+      name: getParam(requestUrl, "name", "Viewer"),
+      text: getParam(requestUrl, "text", "")
+    });
+    res.end("ok");
+    return;
+  }
+
+  if (cleanUrl === "/api/gift") {
+    const amount = Number(getParam(requestUrl, "amount", "1"));
+    broadcast({
+      type: "gift",
+      name: getParam(requestUrl, "name", "Viewer"),
+      amount: Number.isFinite(amount) ? amount : 1,
+      label: getParam(requestUrl, "label", "regalo")
+    });
+    res.end("ok");
+    return;
+  }
+
+  if (cleanUrl === "/api/like") {
+    broadcast({
+      type: "dance",
+      name: getParam(requestUrl, "name", "Viewer"),
+      label: "like"
+    });
+    res.end("ok");
+    return;
+  }
+
   const requested = cleanUrl === "/" ? "index.html" : cleanUrl.replace(/^\/+/, "");
   const filePath = path.join(root, requested);
 
@@ -99,6 +132,10 @@ function handleRequest(req, res) {
     res.writeHead(200, { "Content-Type": types[path.extname(filePath)] || "text/plain" });
     res.end(data);
   });
+}
+
+function getParam(requestUrl, name, fallback) {
+  return (requestUrl.searchParams.get(name) || fallback).trim().slice(0, 60);
 }
 
 function connectEventStream(req, res) {
@@ -204,7 +241,7 @@ async function connectTikTok(uniqueId) {
   } catch (error) {
     console.error(`No pude conectar con @${cleanUser}. Verifica que este en vivo.`);
     console.error(error.message);
-    setLiveStatus("waiting", `Esperando que @${cleanUser} este en vivo...`);
+    setLiveStatus("waiting", `Esperando que @${cleanUser} este en vivo... (${error.message})`);
     scheduleTikTokReconnect(cleanUser);
   }
 

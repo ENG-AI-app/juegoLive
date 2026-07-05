@@ -37,6 +37,22 @@ No hace falta poner `@`. El navegador recibe los eventos automaticamente:
 - Regalo: avanza segun el valor estimado del regalo.
 - Like: activa una animacion chica.
 
+Si la conexion directa de TikTok no funciona, se puede usar TikFinity o Streamer.bot con estos endpoints:
+
+```text
+https://juegolive.onrender.com/api/comment?name={nickname}&text={comment}
+https://juegolive.onrender.com/api/gift?name={nickname}&label={giftName}&amount=2
+https://juegolive.onrender.com/api/like?name={nickname}
+```
+
+Para regalos:
+
+```text
+amount=1 regalo chico
+amount=2 regalo medio
+amount=4 regalo grande/VIP
+```
+
 ## Musica y sonidos
 
 La musica principal la pone el streamer por fuera, desde TikTok Live Studio, OBS, Spotify, YouTube u otra fuente.
