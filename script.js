@@ -225,7 +225,6 @@ function reset() {
 
 function handleLiveEvent(event) {
   if (event.type === "status") {
-    ticker.textContent = event.message;
     if (event.state === "connected") {
       showJoinPop(event.message);
     }

@@ -45,6 +45,14 @@ https://juegolive.onrender.com/api/gift?name={nickname}&label={giftName}&amount=
 https://juegolive.onrender.com/api/like?name={nickname}
 ```
 
+Tambien hay URLs simples para regalos:
+
+```text
+https://juegolive.onrender.com/api/gift/small?name={nickname}&label={giftName}
+https://juegolive.onrender.com/api/gift/medium?name={nickname}&label={giftName}
+https://juegolive.onrender.com/api/gift/big?name={nickname}&label={giftName}
+```
+
 Para regalos:
 
 ```text

@@ -103,6 +103,23 @@ function handleRequest(req, res) {
     return;
   }
 
+  if (cleanUrl === "/api/gift/small" || cleanUrl === "/api/gift/medium" || cleanUrl === "/api/gift/big") {
+    const amountByPath = {
+      "/api/gift/small": 1,
+      "/api/gift/medium": 2,
+      "/api/gift/big": 4
+    };
+
+    broadcast({
+      type: "gift",
+      name: getParam(requestUrl, "name", "Viewer"),
+      amount: amountByPath[cleanUrl],
+      label: getParam(requestUrl, "label", "regalo")
+    });
+    res.end("ok");
+    return;
+  }
+
   if (cleanUrl === "/api/like") {
     broadcast({
       type: "dance",
