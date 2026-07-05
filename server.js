@@ -7,6 +7,7 @@ const preferredPort = Number(process.env.PORT || 8123);
 const host = process.env.HOST || (process.env.NODE_ENV === "production" ? "0.0.0.0" : "127.0.0.1");
 const tiktokUser = getArgValue("--tiktok") || process.env.TIKTOK_USER || "";
 const clients = new Set();
+const recentEvents = [];
 let liveStatus = {
   type: "status",
   state: tiktokUser ? "connecting" : "simulator",
@@ -52,6 +53,18 @@ function handleRequest(req, res) {
 
   if (cleanUrl === "/events") {
     connectEventStream(req, res);
+    return;
+  }
+
+  if (cleanUrl === "/health") {
+    res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+    res.end(JSON.stringify({
+      ok: true,
+      tiktokUser: tiktokUser || null,
+      liveStatus,
+      connectedBrowsers: clients.size,
+      recentEvents
+    }, null, 2));
     return;
   }
 
@@ -101,8 +114,20 @@ function connectEventStream(req, res) {
 }
 
 function broadcast(event) {
+  rememberEvent(event);
   clients.forEach((client) => sendEvent(client, event));
   console.log(`[${event.type}] ${event.name || "sin nombre"}`);
+}
+
+function rememberEvent(event) {
+  recentEvents.unshift({
+    at: new Date().toISOString(),
+    ...event
+  });
+
+  if (recentEvents.length > 20) {
+    recentEvents.pop();
+  }
 }
 
 function sendEvent(client, event) {
